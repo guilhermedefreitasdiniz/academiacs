@@ -325,9 +325,71 @@
     flex:none; width:44px; height:44px; border-radius:12px; background:var(--magenta-soft); color:var(--magenta);
     display:flex; align-items:center; justify-content:center;
   }
-  .book-cover-box{flex:none; width:76px; height:104px; border-radius:8px; overflow:hidden; background:var(--magenta-soft); display:flex; align-items:center; justify-content:center;}
+  .book-cover-box{flex:none; width:76px; height:104px; border-radius:8px; overflow:hidden; background:var(--magenta-soft); display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative;}
+  .book-cover-box:hover .book-cover-img{filter:blur(0px); transform:scale(1.04);}
   .book-cover-box .book-icon{width:100%; height:100%; border-radius:0;}
-  .book-cover-img{width:100%; height:100%; object-fit:cover; display:block;}
+  .book-cover-img{width:100%; height:100%; object-fit:cover; display:block; filter:blur(0.35px); transition:filter 0.2s ease, transform 0.2s ease;}
+
+  /* Card de Thumbnail do Vídeo */
+  .video-card-thumb {
+    position: relative;
+    width: 160px;
+    height: 90px;
+    flex: none;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #0d0a1f;
+    cursor: pointer;
+  }
+
+  .video-card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(0.35px);
+    transition: filter 0.2s ease, transform 0.2s ease;
+  }
+
+  .video-card-thumb:hover img {
+    filter: blur(0px);
+    transform: scale(1.06);
+  }
+
+  .video-card-play-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(43, 35, 97, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    transition: background 0.2s ease;
+  }
+
+  .video-card-thumb:hover .video-card-play-overlay {
+    background: rgba(196, 30, 104, 0.7);
+  }
+
+  .img-modal-overlay{
+    position:fixed; inset:0; background:rgba(13, 10, 31, 0.88); z-index:9999;
+    display:flex; align-items:center; justify-content:center; padding:24px;
+    cursor:zoom-out; animation:fadeIn 0.2s ease;
+  }
+  .img-modal-box{
+    max-width:90vw; max-height:90vh; position:relative;
+    display:flex; flex-direction:column; align-items:center;
+  }
+  .img-modal-img{
+    max-width:100%; max-height:85vh; object-fit:contain;
+    border-radius:8px; box-shadow:0 20px 50px rgba(0,0,0,0.6);
+  }
+  .img-modal-caption{
+    color:#ffffff; font-size:14px; font-weight:700; margin-top:12px; text-align:center;
+  }
+  @keyframes fadeIn{
+    from{opacity:0;}
+    to{opacity:1;}
+  }
   .book-head-text{flex:1; min-width:0;}
   .book-title{font-size:17px; font-weight:800; color:var(--navy); line-height:1.3;}
   .book-author{font-size:12.5px; color:var(--ink-soft); margin-top:2px; margin-bottom:10px;}
@@ -3240,31 +3302,351 @@ const PREMISES = [
 const CARD_ICONS = {"estrutura": "<rect x=\"10\" y=\"26\" width=\"44\" height=\"30\" rx=\"2\" fill=\"#2B2361\"/> <rect x=\"10\" y=\"26\" width=\"44\" height=\"6\" fill=\"#C41E68\"/> <path d=\"M6 28L32 8l26 20\" stroke=\"#2B2361\" stroke-width=\"4\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/> <rect x=\"27\" y=\"38\" width=\"10\" height=\"18\" fill=\"#F2C230\"/> <rect x=\"16\" y=\"38\" width=\"7\" height=\"7\" fill=\"#fff\"/> <rect x=\"41\" y=\"38\" width=\"7\" height=\"7\" fill=\"#fff\"/>", "trade": "<path d=\"M10 26v12l10 3V23l-10 3z\" fill=\"#2B2361\"/> <path d=\"M20 22l24-10v40L20 42V22z\" fill=\"#C41E68\"/> <path d=\"M14 38l3 12h6l-3-11\" fill=\"#2B2361\"/> <path d=\"M46 20c4 4 4 20 0 24\" stroke=\"#F2C230\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/> <path d=\"M51 15c7 7 7 27 0 34\" stroke=\"#F2C230\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/>", "plataforma": "<circle cx=\"32\" cy=\"14\" r=\"8\" fill=\"#C41E68\"/> <circle cx=\"14\" cy=\"46\" r=\"8\" fill=\"#2B2361\"/> <circle cx=\"50\" cy=\"46\" r=\"8\" fill=\"#2B2361\"/> <path d=\"M32 22L16 40M32 22l16 18M18 46h28\" stroke=\"#D9D4EC\" stroke-width=\"3\"/>", "enterprise": "<rect x=\"8\" y=\"24\" width=\"48\" height=\"30\" rx=\"4\" fill=\"#2B2361\"/> <rect x=\"8\" y=\"24\" width=\"48\" height=\"10\" fill=\"#C41E68\"/> <rect x=\"24\" y=\"14\" width=\"16\" height=\"12\" rx=\"2\" fill=\"none\" stroke=\"#2B2361\" stroke-width=\"4\"/> <rect x=\"27\" y=\"34\" width=\"10\" height=\"10\" fill=\"#F2C230\"/>", "regras": "<path d=\"M32 6l20 8v14c0 14-9 22-20 28-11-6-20-14-20-28V14l20-8z\" fill=\"#2B2361\"/> <path d=\"M22 32l7 7 14-14\" stroke=\"#F2C230\" stroke-width=\"4.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>", "jornada": "<path d=\"M8 48c8 0 8-14 16-14s8 14 16 14 8-14 16-14\" stroke=\"#2B2361\" stroke-width=\"4\" fill=\"none\" stroke-linecap=\"round\" stroke-dasharray=\"1 9\"/> <circle cx=\"8\" cy=\"48\" r=\"5\" fill=\"#2B2361\"/> <path d=\"M52 20l0 20\" stroke=\"#2B2361\" stroke-width=\"3\"/> <path d=\"M52 14l12 6-12 6z\" fill=\"#C41E68\"/>", "carteira": "<path d=\"M6 18a4 4 0 0 1 4-4h14l6 6h24a4 4 0 0 1 4 4v26a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4V18z\" fill=\"#2B2361\"/> <circle cx=\"32\" cy=\"32\" r=\"7\" fill=\"#F2C230\"/> <path d=\"M22 46c0-6 4.5-10 10-10s10 4 10 10\" fill=\"#C41E68\"/>", "risco": "<path d=\"M32 54S10 40 10 24a12 12 0 0 1 22-6 12 12 0 0 1 22 6c0 16-22 30-22 30z\" fill=\"#C41E68\"/> <path d=\"M8 30h9l4-8 6 14 4-9 3 5h10\" stroke=\"#fff\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>", "indicadores": "<rect x=\"10\" y=\"34\" width=\"10\" height=\"20\" rx=\"2\" fill=\"#2B2361\"/> <rect x=\"27\" y=\"24\" width=\"10\" height=\"30\" rx=\"2\" fill=\"#C41E68\"/> <rect x=\"44\" y=\"12\" width=\"10\" height=\"42\" rx=\"2\" fill=\"#F2C230\"/> <path d=\"M8 20l14-8 12 6 16-10\" stroke=\"#2B2361\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>", "rotina": "<circle cx=\"32\" cy=\"32\" r=\"24\" fill=\"#2B2361\"/> <circle cx=\"32\" cy=\"32\" r=\"19\" fill=\"#fff\"/> <path d=\"M32 20v12l9 6\" stroke=\"#2B2361\" stroke-width=\"4\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/> <circle cx=\"32\" cy=\"32\" r=\"3\" fill=\"#C41E68\"/>", "upsell": "<path d=\"M8 48l14-14 10 8 20-22\" stroke=\"#2B2361\" stroke-width=\"5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/> <path d=\"M40 14h14v14\" stroke=\"#2B2361\" stroke-width=\"5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/> <circle cx=\"14\" cy=\"48\" r=\"6\" fill=\"#F2C230\"/> <circle cx=\"52\" cy=\"14\" r=\"6\" fill=\"#C41E68\"/>", "modelos": "<rect x=\"8\" y=\"14\" width=\"48\" height=\"36\" rx=\"4\" fill=\"#2B2361\"/> <path d=\"M8 18l24 18 24-18\" stroke=\"#fff\" stroke-width=\"3.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/> <rect x=\"8\" y=\"14\" width=\"48\" height=\"36\" rx=\"4\" fill=\"none\" stroke=\"#C41E68\" stroke-width=\"2\"/>", "checklists": "<rect x=\"12\" y=\"10\" width=\"40\" height=\"48\" rx=\"4\" fill=\"#2B2361\"/> <rect x=\"22\" y=\"6\" width=\"20\" height=\"10\" rx=\"3\" fill=\"#F2C230\"/> <path d=\"M20 26l5 5 9-9\" stroke=\"#F2C230\" stroke-width=\"3.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/> <path d=\"M20 40l5 5 9-9\" stroke=\"#C41E68\" stroke-width=\"3.5\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/> <line x1=\"38\" y1=\"28\" x2=\"46\" y2=\"28\" stroke=\"#fff\" stroke-width=\"3\" stroke-linecap=\"round\"/> <line x1=\"38\" y1=\"42\" x2=\"46\" y2=\"42\" stroke=\"#fff\" stroke-width=\"3\" stroke-linecap=\"round\"/>", "casos": "<path d=\"M10 12h44v28H30l-10 8v-8H10V12z\" fill=\"#2B2361\"/> <circle cx=\"32\" cy=\"24\" r=\"7\" fill=\"#F2C230\"/> <rect x=\"29\" y=\"30\" width=\"6\" height=\"4\" fill=\"#F2C230\"/>", "treinamentos": "<rect x=\"8\" y=\"12\" width=\"48\" height=\"32\" rx=\"4\" fill=\"#2B2361\"/> <rect x=\"24\" y=\"46\" width=\"16\" height=\"4\" fill=\"#2B2361\"/> <rect x=\"18\" y=\"50\" width=\"28\" height=\"4\" rx=\"2\" fill=\"#2B2361\"/> <path d=\"M27 20l14 8-14 8V20z\" fill=\"#F2C230\"/>", "certificacao": "<path d=\"M20 30l-8 20 12-4 8 8 6-14\" fill=\"#C41E68\"/> <path d=\"M44 30l8 20-12-4-8 8-6-14\" fill=\"#2B2361\"/> <circle cx=\"32\" cy=\"24\" r=\"16\" fill=\"#2B2361\"/> <path d=\"M32 15l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z\" fill=\"#F2C230\"/>", "referencias": "<path d=\"M32 16c-6-4-16-4-22-1v34c6-3 16-3 22 1V16z\" fill=\"#2B2361\"/> <path d=\"M32 16c6-4 16-4 22-1v34c-6-3-16-3-22 1V16z\" fill=\"#C41E68\"/> <line x1=\"32\" y1=\"16\" x2=\"32\" y2=\"50\" stroke=\"#F2C230\" stroke-width=\"2\"/>", "estudos": "<path d=\"M8 14c-4-2-4 4 0 6 6 3 12-2 16 0V6C20 4 14 9 8 6z\" fill=\"#2B2361\"/> <path d=\"M32 6c6 3 12-2 16 0v14c-4-2-10 3-16 0z\" fill=\"#C41E68\"/> <line x1=\"32\" y1=\"6\" x2=\"32\" y2=\"20\" stroke=\"#F2C230\" stroke-width=\"2\"/>", "cliente-smb": "<rect x=\"8\" y=\"20\" width=\"48\" height=\"36\" rx=\"4\" fill=\"#2B2361\"/> <rect x=\"8\" y=\"20\" width=\"48\" height=\"8\" fill=\"#C41E68\"/> <circle cx=\"32\" cy=\"42\" r=\"9\" fill=\"#F2C230\"/> <rect x=\"16\" y=\"44\" width=\"32\" height=\"4\" fill=\"#fff\"/>", "jornada-smb": "<line x1=\"8\" y1=\"48\" x2=\"56\" y2=\"48\" stroke=\"#D9D4EC\" stroke-width=\"4\"/> <circle cx=\"14\" cy=\"48\" r=\"7\" fill=\"#2B2361\"/> <circle cx=\"28\" cy=\"48\" r=\"7\" fill=\"#2B2361\"/> <circle cx=\"42\" cy=\"48\" r=\"7\" fill=\"#C41E68\"/> <circle cx=\"56\" cy=\"48\" r=\"7\" fill=\"#F2C230\"/> <path d=\"M10 20h44l-6 10H16z\" fill=\"#2B2361\"/>", "clientes": "<rect x=\"8\" y=\"24\" width=\"48\" height=\"30\" rx=\"4\" fill=\"#2B2361\"/> <rect x=\"8\" y=\"24\" width=\"48\" height=\"10\" fill=\"#C41E68\"/> <rect x=\"24\" y=\"14\" width=\"16\" height=\"12\" rx=\"2\" fill=\"none\" stroke=\"#2B2361\" stroke-width=\"4\"/> <rect x=\"27\" y=\"34\" width=\"10\" height=\"10\" fill=\"#F2C230\"/>"};
 const TREINAMENTOS_CLOSING_SVG = "<svg viewBox=\"0 0 640 103\" xmlns=\"http://www.w3.org/2000/svg\" style=\"width:100%;height:auto;max-width:680px;display:block;margin:0 auto;\"><line x1=\"60\" y1=\"42\" x2=\"580\" y2=\"42\" stroke=\"#E4E1EE\" stroke-width=\"3\"/><circle cx=\"60\" cy=\"42\" r=\"18\" fill=\"#2B2361\"/><text x=\"60\" y=\"47\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"800\" fill=\"#fff\">1</text><text x=\"60\" y=\"72\" text-anchor=\"middle\" font-size=\"11.5\" font-weight=\"700\" fill=\"#2B2361\"><tspan x=\"60\" dy=\"0\">Vídeo</tspan><tspan x=\"60\" dy=\"13\">real</tspan></text><polygon points=\"120,38 130,42 120,46\" fill=\"#C41E68\"/><circle cx=\"190\" cy=\"42\" r=\"18\" fill=\"#2B2361\"/><text x=\"190\" y=\"47\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"800\" fill=\"#fff\">2</text><text x=\"190\" y=\"78\" text-anchor=\"middle\" font-size=\"11.5\" font-weight=\"700\" fill=\"#2B2361\"><tspan x=\"190\" dy=\"0\">Análise</tspan></text><polygon points=\"250,38 260,42 250,46\" fill=\"#C41E68\"/><circle cx=\"320\" cy=\"42\" r=\"18\" fill=\"#2B2361\"/><text x=\"320\" y=\"47\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"800\" fill=\"#fff\">3</text><text x=\"320\" y=\"78\" text-anchor=\"middle\" font-size=\"11.5\" font-weight=\"700\" fill=\"#2B2361\"><tspan x=\"320\" dy=\"0\">Simulação</tspan></text><polygon points=\"380,38 390,42 380,46\" fill=\"#C41E68\"/><circle cx=\"450\" cy=\"42\" r=\"18\" fill=\"#2B2361\"/><text x=\"450\" y=\"47\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"800\" fill=\"#fff\">4</text><text x=\"450\" y=\"78\" text-anchor=\"middle\" font-size=\"11.5\" font-weight=\"700\" fill=\"#2B2361\"><tspan x=\"450\" dy=\"0\">Feedback</tspan></text><polygon points=\"510,38 520,42 510,46\" fill=\"#C41E68\"/><circle cx=\"580\" cy=\"42\" r=\"18\" fill=\"#2B2361\"/><text x=\"580\" y=\"47\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"800\" fill=\"#fff\">5</text><text x=\"580\" y=\"78\" text-anchor=\"middle\" font-size=\"11.5\" font-weight=\"700\" fill=\"#2B2361\"><tspan x=\"580\" dy=\"0\">Evolução</tspan></text></svg>";
 const LEITURAS_OBRIGATORIAS = [
-  {id:'customer-success', titulo:'Customer Success', autor:'Nick Mehta, Dan Steinman e Lincoln Murphy',
+  {id:'customer-success', titulo:'Customer Success', autor:'Nick Mehta, Dan Steinman e Lincoln Murphy', capa:'customersucesslivro.jpg',
    descricao:'Apresenta os fundamentos de Customer Success e mostra como empresas com receitas recorrentes podem reduzir churn, aumentar retenção e crescer por meio do sucesso dos seus clientes. A ideia central é que o CS não deve agir apenas quando surge um problema: precisa acompanhar resultados, antecipar riscos e garantir que o cliente obtenha valor continuamente.',
    aprendizado:'Trabalhar de maneira proativa, entendendo o resultado esperado pelo cliente e acompanhando sinais de risco, adoção, satisfação e expansão.',
    aplicacao:'Antes de cada reunião, o CS deve saber qual resultado o cliente busca, o que já foi alcançado e qual será o próximo avanço.'},
-  {id:'onboarding-orquestrado', titulo:'Onboarding Orquestrado', autor:'Donna Weber',
+  {id:'onboarding-orquestrado', titulo:'Onboarding Orquestrado', autor:'Donna Weber', capa:'onboardingorquestrado.jpg',
    descricao:'Apresenta uma metodologia estruturada para conduzir os primeiros momentos da jornada do cliente. O processo começa antes mesmo do fechamento da venda e passa pelas etapas de embarque, passagem de bastão, kickoff, adoção, revisão e expansão, com o objetivo de alinhar expectativas e acelerar o momento em que o cliente percebe valor.',
    aprendizado:'Um bom onboarding não é apenas ensinar a usar uma plataforma, mas preparar o cliente para alcançar resultados.',
    aplicacao:'Toda implantação deve ter objetivos claros, responsáveis, prazos, critérios de sucesso e uma passagem de bastão organizada entre Comercial, Implantação e CS.'},
-  {id:'pergunta-definitiva', titulo:'A Pergunta Definitiva 2.0', autor:'Fred Reichheld',
+  {id:'pergunta-definitiva', titulo:'A Pergunta Definitiva 2.0', autor:'Fred Reichheld', capa:'aperguntadefinitiva2.jpg',
    descricao:'Apresenta o conceito do Net Promoter Score, o NPS, e explica como a disposição dos clientes em recomendar uma empresa pode ser utilizada para avaliar lealdade e orientar melhorias. Mais do que calcular uma nota, a proposta é ouvir os clientes, entender os motivos das respostas e transformar feedbacks em ações concretas.',
    aprendizado:'O NPS não deve ser tratado apenas como indicador. Ele deve gerar investigação, aprendizado e mudança.',
    aplicacao:'Após cada resposta de NPS, o CS deve entender o motivo da nota, registrar o feedback, definir responsáveis e acompanhar as ações necessárias.'},
-  {id:'regra-nao-ter-regras', titulo:'A Regra é Não Ter Regras', autor:'Reed Hastings e Erin Meyer',
+  {id:'regra-nao-ter-regras', titulo:'A Regra é Não Ter Regras', autor:'Reed Hastings e Erin Meyer', capa:'aregraehnaoterregras.jpg',
    descricao:'Apresenta os princípios da cultura da Netflix, baseada em alta densidade de talentos, transparência, liberdade e responsabilidade. Em vez de controlar decisões por meio de regras e aprovações, a liderança oferece contexto suficiente para que pessoas competentes tomem boas decisões com autonomia.',
    aprendizado:'Autonomia não significa fazer o que quiser. Significa tomar decisões responsáveis, considerando os objetivos da empresa e o impacto para o cliente.',
    aplicacao:'O CS deve ter liberdade para resolver problemas, mas precisa assumir responsabilidade por suas decisões, comunicar riscos e manter todas as informações registradas.'},
-  {id:'como-fazer-amigos', titulo:'Como Fazer Amigos e Influenciar Pessoas', autor:'Dale Carnegie',
+  {id:'como-fazer-amigos', titulo:'Como Fazer Amigos e Influenciar Pessoas', autor:'Dale Carnegie', capa:'comofazeramigos.jpg',
    descricao:'Apresenta princípios de comunicação, empatia e relacionamento. Entre os principais ensinamentos estão demonstrar interesse genuíno pelas pessoas, ouvir com atenção, evitar críticas agressivas, reconhecer qualidades e considerar o ponto de vista do outro antes de tentar influenciá-lo.',
    aprendizado:'Relacionamento não é apenas ser simpático. É construir confiança, saber ouvir, compreender interesses e conduzir conversas difíceis sem gerar conflitos desnecessários.',
    aplicacao:'Durante as reuniões, o CS deve ouvir antes de responder, fazer perguntas para entender o contexto e adaptar sua comunicação ao perfil de cada stakeholder.'},
 ];
 
 const ESTUDOS_TEMAS = [
+  {
+    id: 'meu-cliente-educacao',
+    titulo: 'Meu Cliente Educação',
+    desc: 'Cursos, módulos e treinamentos internos da Meu Cliente Educação.'
+  },
   {id:'trade-varejo', titulo:'Trade Marketing e Varejo', desc:'Como o varejo funciona por dentro e como o Trade se conecta com ele.'},
 ];
+
+const MEU_CLIENTE_EDUCACAO = [
+  {
+    host: 'Bruno',
+    modulos: [
+      {num:1, link: 'https://drive.google.com/file/d/1HpGscKxIsl0bcmZgRM4OpuS4Wlcmcy1f/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1HpGscKxIsl0bcmZgRM4OpuS4Wlcmcy1f/preview'},
+      {num:2, link: 'https://drive.google.com/file/d/1IcmoXKSpHPLlbjYqs8HXw8FGEifcDmNe/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1IcmoXKSpHPLlbjYqs8HXw8FGEifcDmNe/preview'},
+      {num:3, link: 'https://drive.google.com/file/d/1npl_6X2oT2bMA4-J66MGhBqhKZ6hKFwD/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1npl_6X2oT2bMA4-J66MGhBqhKZ6hKFwD/preview'},
+    ]
+  },
+  {
+    host: 'Cássio',
+    modulos: [
+      {num:1, link: 'https://drive.google.com/file/d/1cMENF8zWsryhXiOVGN5CfP8DFdjtsP1Q/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1cMENF8zWsryhXiOVGN5CfP8DFdjtsP1Q/preview'},
+      {num:2, link: 'https://drive.google.com/file/d/1c02WCJ9-fnuqpXqBNyk_1rENVtsDr0XQ/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1c02WCJ9-fnuqpXqBNyk_1rENVtsDr0XQ/preview'},
+      {num:3, link: 'https://drive.google.com/file/d/1SJMGgzAIbO9PywPZkqbgRIT8K1vvmv4B/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1SJMGgzAIbO9PywPZkqbgRIT8K1vvmv4B/preview'},
+      {num:4, link: 'https://drive.google.com/file/d/1DtY_sL3okE6JeE2rCv0FA8W3yxOUR2lF/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1DtY_sL3okE6JeE2rCv0FA8W3yxOUR2lF/preview'},
+    ]
+  },
+  {
+    host: 'Cíntia',
+    modulos: [
+      {num:1, link: 'https://drive.google.com/file/d/1E_vvHIYz8_rInWGMBlSM2GRSokJNDV3g/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1E_vvHIYz8_rInWGMBlSM2GRSokJNDV3g/preview'},
+      {num:2, link: 'https://drive.google.com/file/d/14wi3LlS0nCioHk88D1i_qR7tkncyhhFj/view?usp=drive_link', embed: 'https://drive.google.com/file/d/14wi3LlS0nCioHk88D1i_qR7tkncyhhFj/preview'},
+      {num:3, link: 'https://drive.google.com/file/d/188Pm83E_qaAsw2VSK4xUjah_cMVlKQGK/view?usp=drive_link', embed: 'https://drive.google.com/file/d/188Pm83E_qaAsw2VSK4xUjah_cMVlKQGK/preview'},
+      {num:4, link: 'https://drive.google.com/file/d/17HWDPoGZRkFsMBdJOaiXYjRtHY9aKqJX/view?usp=drive_link', embed: 'https://drive.google.com/file/d/17HWDPoGZRkFsMBdJOaiXYjRtHY9aKqJX/preview'},
+    ]
+  },
+  {
+    host: 'Felipe',
+    modulos: [
+      {num:1, link: 'https://drive.google.com/file/d/1CKABP4ovUyVaYrxGPa3yYroyksYZr2Eu/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1CKABP4ovUyVaYrxGPa3yYroyksYZr2Eu/preview'},
+      {num:2, link: 'https://drive.google.com/file/d/1NeT357qa2sQcTC5__x2mL5AVEx3psVbs/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1NeT357qa2sQcTC5__x2mL5AVEx3psVbs/preview'},
+      {num:3, link: 'https://drive.google.com/file/d/1GPyIymaqSTU_9b6unylVOgYRSkdC2xXO/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1GPyIymaqSTU_9b6unylVOgYRSkdC2xXO/preview'},
+      {num:4, link: 'https://drive.google.com/file/d/1hhXh1KzS75K-hqHOyHaGPNgiQ7-pXKIh/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1hhXh1KzS75K-hqHOyHaGPNgiQ7-pXKIh/preview'},
+    ]
+  },
+  {
+    host: 'Jonatas',
+    modulos: [
+      {num:1, link: 'https://drive.google.com/file/d/1hMHQyWI8Lr_qKRJIbPoR621YCu_5SgxG/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1hMHQyWI8Lr_qKRJIbPoR621YCu_5SgxG/preview'},
+      {num:2, link: 'https://drive.google.com/file/d/1MVoHC8n1XzkxkA2ymv_CPHoHbSrX8WWo/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1MVoHC8n1XzkxkA2ymv_CPHoHbSrX8WWo/preview'},
+      {num:3, link: 'https://drive.google.com/file/d/1rQu0FPiW5hB1kE0AltC-uYuoqbr_FKZZ/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1rQu0FPiW5hB1kE0AltC-uYuoqbr_FKZZ/preview'},
+      {num:4, link: 'https://drive.google.com/file/d/11XH0k08LuGQiFZZd1zMjo5EtRwe1AlrJ/view?usp=drive_link', embed: 'https://drive.google.com/file/d/11XH0k08LuGQiFZZd1zMjo5EtRwe1AlrJ/preview'},
+    ]
+  },
+  {
+    host: 'Mably',
+    modulos: [
+      {num:1, link: 'https://drive.google.com/file/d/1AuTRbqO7dPt3DF7wXwwL3ttqhRFK84aF/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1AuTRbqO7dPt3DF7wXwwL3ttqhRFK84aF/preview'},
+      {num:2, link: 'https://drive.google.com/file/d/1Uu_E_OIUxI-PsNCPQoBsHazLZT-hcEP0/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1Uu_E_OIUxI-PsNCPQoBsHazLZT-hcEP0/preview'},
+      {num:3, link: 'https://drive.google.com/file/d/1gV1WLdlF2wI9CS8x8Mk9Qb0uXi6VQszb/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1gV1WLdlF2wI9CS8x8Mk9Qb0uXi6VQszb/preview'},
+      {num:4, link: 'https://drive.google.com/file/d/155ge0S410aRWN3ERidoiz9vt28yf5kni/view?usp=drive_link', embed: 'https://drive.google.com/file/d/155ge0S410aRWN3ERidoiz9vt28yf5kni/preview'},
+      {num:5, link: 'https://drive.google.com/file/d/1LZ2KKuxNL0ObRqhypjKzdyH6yFyOZC0u/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1LZ2KKuxNL0ObRqhypjKzdyH6yFyOZC0u/preview'},
+    ]
+  },
+  {
+    host: 'Paula',
+    modulos: [
+      {num:1, link: 'https://drive.google.com/file/d/1XwaJtDNf9Vybxr3MpzycmbavWO48Lr8n/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1XwaJtDNf9Vybxr3MpzycmbavWO48Lr8n/preview'},
+      {num:2, link: 'https://drive.google.com/file/d/1WImhY_PO6e0q8fxzHRLwBxVv8Y2alaR2/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1WImhY_PO6e0q8fxzHRLwBxVv8Y2alaR2/preview'},
+      {num:3, link: 'https://drive.google.com/file/d/1Hlz2ClTYI_886c2Sot5j9rS2LeKzRZvq/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1Hlz2ClTYI_886c2Sot5j9rS2LeKzRZvq/preview'},
+      {num:4, link: 'https://drive.google.com/file/d/1KzkFpM0rs-yC-0KXH45EGwf-qyvbfPND/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1KzkFpM0rs-yC-0KXH45EGwf-qyvbfPND/preview'},
+    ]
+  },
+  {
+    host: 'Maurício',
+    modulos: [
+      {num:1, link: 'https://drive.google.com/file/d/1gv_euK-Iq0Vpr8uusmKKiGVD0D4YXWnB/view?usp=drive_link', embed: 'https://drive.google.com/file/d/1gv_euK-Iq0Vpr8uusmKKiGVD0D4YXWnB/preview'},
+    ]
+  },
+];
+
+const PODCASTS_INTERNOS = [
+  {
+    id: 'mc-cast-01',
+    titulo: 'MC Cast Ep. 01 - O papel do Trade Marketing para o varejo moderno',
+    link: 'https://www.youtube.com/watch?v=H6Z1m5bYlX0',
+    embed: 'https://www.youtube-nocookie.com/embed/H6Z1m5bYlX0?rel=0',
+    thumb: 'https://img.youtube.com/vi/H6Z1m5bYlX0/hqdefault.jpg'
+  },
+  {
+    id: 'mc-cast-02',
+    titulo: 'MC Cast Ep. 02 - Como vender mais com atendimento ao cliente excepcional',
+    link: 'https://www.youtube.com/watch?v=3SBg3lP6A-I',
+    embed: 'https://www.youtube-nocookie.com/embed/3SBg3lP6A-I?rel=0',
+    thumb: 'https://img.youtube.com/vi/3SBg3lP6A-I/hqdefault.jpg'
+  },
+  {
+    id: 'mc-cast-03',
+    titulo: 'MC Cast Ep. 03 - Projetos internos de educação e capacitação contínua',
+    link: 'https://www.youtube.com/watch?v=Z8_eJrT3G2U',
+    embed: 'https://www.youtube-nocookie.com/embed/Z8_eJrT3G2U?rel=0',
+    thumb: 'https://img.youtube.com/vi/Z8_eJrT3G2U/hqdefault.jpg'
+  },
+  {
+    id: 'mc-cast-04',
+    titulo: 'MC Cast Ep. 04 - Aprendizado interno: desafios e oportunidades da Educação corporativa',
+    link: 'https://www.youtube.com/watch?v=YxO4xD9sKn0',
+    embed: 'https://www.youtube-nocookie.com/embed/YxO4xD9sKn0?rel=0',
+    thumb: 'https://img.youtube.com/vi/YxO4xD9sKn0/hqdefault.jpg'
+  }
+];
+
+const ESTUDOS_VIDEOS = {
+  'meu-cliente-educacao': [
+    // --- CURSO BRUNO ---
+    {
+      id: 'curso-bruno-modulo-01',
+      titulo: 'CURSO BRUNO - MÓDULO 01',
+      link: 'https://drive.google.com/file/d/1HpGscKxIsl0bcmZgRM4OpuS4Wlcmcy1f/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1HpGscKxIsl0bcmZgRM4OpuS4Wlcmcy1f/preview'
+    },
+    {
+      id: 'curso-bruno-modulo-02',
+      titulo: 'CURSO BRUNO - MÓDULO 02',
+      link: 'https://drive.google.com/file/d/1IcmoXKSpHPLlbjYqs8HXw8FGEifcDmNe/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1IcmoXKSpHPLlbjYqs8HXw8FGEifcDmNe/preview'
+    },
+    {
+      id: 'curso-bruno-modulo-03',
+      titulo: 'CURSO BRUNO - MÓDULO 03',
+      link: 'https://drive.google.com/file/d/1npl_6X2oT2bMA4-J66MGhBqhKZ6hKFwD/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1npl_6X2oT2bMA4-J66MGhBqhKZ6hKFwD/preview'
+    },
+
+    // --- CURSO CÁSSIO ---
+    {
+      id: 'curso-cassio-modulo-01',
+      titulo: 'CURSO CÁSSIO - MÓDULO 01',
+      link: 'https://drive.google.com/file/d/1cMENF8zWsryhXiOVGN5CfP8DFdjtsP1Q/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1cMENF8zWsryhXiOVGN5CfP8DFdjtsP1Q/preview'
+    },
+    {
+      id: 'curso-cassio-modulo-02',
+      titulo: 'CURSO CÁSSIO - MÓDULO 02',
+      link: 'https://drive.google.com/file/d/1c02WCJ9-fnuqpXqBNyk_1rENVtsDr0XQ/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1c02WCJ9-fnuqpXqBNyk_1rENVtsDr0XQ/preview'
+    },
+    {
+      id: 'curso-cassio-modulo-03',
+      titulo: 'CURSO CÁSSIO - MÓDULO 03',
+      link: 'https://drive.google.com/file/d/1SJMGgzAIbO9PywPZkqbgRIT8K1vvmv4B/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1SJMGgzAIbO9PywPZkqbgRIT8K1vvmv4B/preview'
+    },
+    {
+      id: 'curso-cassio-modulo-04',
+      titulo: 'CURSO CÁSSIO - MÓDULO 04',
+      link: 'https://drive.google.com/file/d/1DtY_sL3okE6JeE2rCv0FA8W3yxOUR2lF/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1DtY_sL3okE6JeE2rCv0FA8W3yxOUR2lF/preview'
+    },
+
+    // --- CURSO CINTIA ---
+    {
+      id: 'curso-cintia-modulo-01',
+      titulo: 'CURSO CINTIA - MÓDULO 01',
+      link: 'https://drive.google.com/file/d/1E_vvHIYz8_rInWGMBlSM2GRSokJNDV3g/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1E_vvHIYz8_rInWGMBlSM2GRSokJNDV3g/preview'
+    },
+    {
+      id: 'curso-cintia-modulo-02',
+      titulo: 'CURSO CINTIA - MÓDULO 02',
+      link: 'https://drive.google.com/file/d/14wi3LlS0nCioHk88D1i_qR7tkncyhhFj/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/14wi3LlS0nCioHk88D1i_qR7tkncyhhFj/preview'
+    },
+    {
+      id: 'curso-cintia-modulo-03',
+      titulo: 'CURSO CINTIA - MÓDULO 03',
+      link: 'https://drive.google.com/file/d/188Pm83E_qaAsw2VSK4xUjah_cMVlKQGK/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/188Pm83E_qaAsw2VSK4xUjah_cMVlKQGK/preview'
+    },
+    {
+      id: 'curso-cintia-modulo-04',
+      titulo: 'CURSO CINTIA - MÓDULO 04',
+      link: 'https://drive.google.com/file/d/17HWDPoGZRkFsMBdJOaiXYjRtHY9aKqJX/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/17HWDPoGZRkFsMBdJOaiXYjRtHY9aKqJX/preview'
+    },
+
+    // --- CURSO FELIPE ---
+    {
+      id: 'curso-felipe-modulo-01',
+      titulo: 'CURSO FELIPE - MÓDULO 01',
+      link: 'https://drive.google.com/file/d/1CKABP4ovUyVaYrxGPa3yYroyksYZr2Eu/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1CKABP4ovUyVaYrxGPa3yYroyksYZr2Eu/preview'
+    },
+    {
+      id: 'curso-felipe-modulo-02',
+      titulo: 'CURSO FELIPE - MÓDULO 02',
+      link: 'https://drive.google.com/file/d/1NeT357qa2sQcTC5__x2mL5AVEx3psVbs/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1NeT357qa2sQcTC5__x2mL5AVEx3psVbs/preview'
+    },
+    {
+      id: 'curso-felipe-modulo-03',
+      titulo: 'CURSO FELIPE - MÓDULO 03',
+      link: 'https://drive.google.com/file/d/1GPyIymaqSTU_9b6unylVOgYRSkdC2xXO/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1GPyIymaqSTU_9b6unylVOgYRSkdC2xXO/preview'
+    },
+    {
+      id: 'curso-felipe-modulo-04',
+      titulo: 'CURSO FELIPE - MÓDULO 04',
+      link: 'https://drive.google.com/file/d/1hhXh1KzS75K-hqHOyHaGPNgiQ7-pXKIh/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1hhXh1KzS75K-hqHOyHaGPNgiQ7-pXKIh/preview'
+    },
+
+    // --- CURSO JONATAS ---
+    {
+      id: 'curso-jonatas-modulo-01',
+      titulo: 'CURSO JONATAS - MÓDULO 01',
+      link: 'https://drive.google.com/file/d/1hMHQyWI8Lr_qKRJIbPoR621YCu_5SgxG/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1hMHQyWI8Lr_qKRJIbPoR621YCu_5SgxG/preview'
+    },
+    {
+      id: 'curso-jonatas-modulo-02',
+      titulo: 'CURSO JONATAS - MÓDULO 02',
+      link: 'https://drive.google.com/file/d/1MVoHC8n1XzkxkA2ymv_CPHoHbSrX8WWo/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1MVoHC8n1XzkxkA2ymv_CPHoHbSrX8WWo/preview'
+    },
+    {
+      id: 'curso-jonatas-modulo-03',
+      titulo: 'CURSO JONATAS - MÓDULO 03',
+      link: 'https://drive.google.com/file/d/1rQu0FPiW5hB1kE0AltC-uYuoqbr_FKZZ/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1rQu0FPiW5hB1kE0AltC-uYuoqbr_FKZZ/preview'
+    },
+    {
+      id: 'curso-jonatas-modulo-04',
+      titulo: 'CURSO JONATAS - MÓDULO 04',
+      link: 'https://drive.google.com/file/d/11XH0k08LuGQiFZZd1zMjo5EtRwe1AlrJ/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/11XH0k08LuGQiFZZd1zMjo5EtRwe1AlrJ/preview'
+    },
+
+    // --- CURSO MABLY ---
+    {
+      id: 'curso-mably-modulo-01',
+      titulo: 'CURSO MABLY - MÓDULO 01',
+      link: 'https://drive.google.com/file/d/1AuTRbqO7dPt3DF7wXwwL3ttqhRFK84aF/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1AuTRbqO7dPt3DF7wXwwL3ttqhRFK84aF/preview'
+    },
+    {
+      id: 'curso-mably-modulo-02',
+      titulo: 'CURSO MABLY - MÓDULO 02',
+      link: 'https://drive.google.com/file/d/1Uu_E_OIUxI-PsNCPQoBsHazLZT-hcEP0/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1Uu_E_OIUxI-PsNCPQoBsHazLZT-hcEP0/preview'
+    },
+    {
+      id: 'curso-mably-modulo-03',
+      titulo: 'CURSO MABLY - MÓDULO 03',
+      link: 'https://drive.google.com/file/d/1gV1WLdlF2wI9CS8x8Mk9Qb0uXi6VQszb/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1gV1WLdlF2wI9CS8x8Mk9Qb0uXi6VQszb/preview'
+    },
+    {
+      id: 'curso-mably-modulo-04',
+      titulo: 'CURSO MABLY - MÓDULO 04',
+      link: 'https://drive.google.com/file/d/155ge0S410aRWN3ERidoiz9vt28yf5kni/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/155ge0S410aRWN3ERidoiz9vt28yf5kni/preview'
+    },
+    {
+      id: 'curso-mably-modulo-05',
+      titulo: 'CURSO MABLY - MÓDULO 05',
+      link: 'https://drive.google.com/file/d/1LZ2KKuxNL0ObRqhypjKzdyH6yFyOZC0u/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1LZ2KKuxNL0ObRqhypjKzdyH6yFyOZC0u/preview'
+    },
+
+    // --- CURSO PAULA ---
+    {
+      id: 'curso-paula-modulo-01',
+      titulo: 'CURSO PAULA - MÓDULO 01',
+      link: 'https://drive.google.com/file/d/1XwaJtDNf9Vybxr3MpzycmbavWO48Lr8n/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1XwaJtDNf9Vybxr3MpzycmbavWO48Lr8n/preview'
+    },
+    {
+      id: 'curso-paula-modulo-02',
+      titulo: 'CURSO PAULA - MÓDULO 02',
+      link: 'https://drive.google.com/file/d/1WImhY_PO6e0q8fxzHRLwBxVv8Y2alaR2/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1WImhY_PO6e0q8fxzHRLwBxVv8Y2alaR2/preview'
+    },
+    {
+      id: 'curso-paula-modulo-03',
+      titulo: 'CURSO PAULA - MÓDULO 03',
+      link: 'https://drive.google.com/file/d/1Hlz2ClTYI_886c2Sot5j9rS2LeKzRZvq/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1Hlz2ClTYI_886c2Sot5j9rS2LeKzRZvq/preview'
+    },
+    {
+      id: 'curso-paula-modulo-04',
+      titulo: 'CURSO PAULA - MÓDULO 04',
+      link: 'https://drive.google.com/file/d/1KzkFpM0rs-yC-0KXH45EGwf-qyvbfPND/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1KzkFpM0rs-yC-0KXH45EGwf-qyvbfPND/preview'
+    },
+
+    // --- CURSO MAURICIO ---
+    {
+      id: 'curso-mauricio-modulo-01',
+      titulo: 'CURSO MAURICIO - MÓDULO 01',
+      link: 'https://drive.google.com/file/d/1gv_euK-Iq0Vpr8uusmKKiGVD0D4YXWnB/view?usp=drive_link',
+      embed: 'https://drive.google.com/file/d/1gv_euK-Iq0Vpr8uusmKKiGVD0D4YXWnB/preview'
+    }
+  ],
+
+  'trade-varejo': [
+    {
+      id: 'luiza-aduan-cs-atendimento',
+      titulo: 'Customer Success X Atendimento ao Cliente: DIFERENÇAS e IMPACTO no seu negócio | Luiza Aduan (A5E Ep. 8)',
+      link: 'https://www.youtube.com/watch?v=PhXFcdSowG8',
+      embed: 'https://www.youtube-nocookie.com/embed/PhXFcdSowG8?rel=0',
+      thumb: 'https://img.youtube.com/vi/PhXFcdSowG8/hqdefault.jpg'
+    },
+    {
+      id: 'luiza-aduan-cs-pratica',
+      titulo: 'Customer Success na PRÁTICA: A Rotina Essencial desse Profissional | A5E Ep. #10',
+      link: 'https://www.youtube.com/watch?v=E3BUaZQRrck',
+      embed: 'https://www.youtube-nocookie.com/embed/E3BUaZQRrck?rel=0',
+      thumb: 'https://img.youtube.com/vi/E3BUaZQRrck/hqdefault.jpg'
+    }
+  ]
+};
+
 // Livros e artigos por tema — preenchido pelo Vitor. Estrutura pronta para receber conteúdo:
 // { titulo, autor, tipo: 'livro'|'artigo', resumo, link (opcional) }
 const ESTUDOS_LIVROS = {
@@ -3313,6 +3695,7 @@ let state = {
   estudosTemaId: null,
   showTrackVideo: false,
   activeAddForm: null,
+  activeImageModal: null,
   savingMaterial: false,
   addError: '',
   player: null,
@@ -3451,8 +3834,83 @@ async function loadState(){
     console.error('Não foi possível carregar os materiais compartilhados:', e);
   }
   await loadCentralState();
-  state.view = state.authed ? 'home' : 'login';
+  if(state.authed){
+    parseHash();
+  } else {
+    state.view = 'login';
+  }
   render();
+}
+
+function updateHash(){
+  if(state.view === 'login'){
+    window.location.hash = '#login';
+  } else if(state.view === 'central'){
+    const cv = state.central.view;
+    if(cv === 'categoria' && state.central.categoryId){
+      window.location.hash = `#central/categoria/${state.central.categoryId}`;
+    } else if(cv === 'situacao' && state.central.situacaoId){
+      window.location.hash = `#central/situacao/${state.central.situacaoId}`;
+    } else if(cv === 'fluxo' && state.central.fluxoId){
+      window.location.hash = `#central/fluxo/${state.central.fluxoId}`;
+    } else {
+      window.location.hash = '#central';
+    }
+  } else if(state.view === 'track' && state.trackId){
+    if(state.trackId === 'estudos' && state.estudosTemaId){
+      window.location.hash = `#estudos/${state.estudosTemaId}`;
+    } else {
+      window.location.hash = `#trilha/${state.trackId}/${state.lessonIdx || 0}`;
+    }
+  } else {
+    window.location.hash = '#home';
+  }
+}
+
+function parseHash(){
+  if(!state.authed) return;
+
+  const hash = window.location.hash.replace(/^#/, '').trim();
+  if(!hash || hash === 'home'){
+    state.view = 'home';
+    return;
+  }
+
+  const parts = hash.split('/');
+  if(parts[0] === 'central'){
+    state.view = 'central';
+    state.estudosTemaId = null;
+    if(parts[1] === 'categoria' && parts[2]){
+      state.central.view = 'categoria';
+      state.central.categoryId = parts[2];
+    } else if(parts[1] === 'situacao' && parts[2]){
+      state.central.view = 'situacao';
+      state.central.situacaoId = parts[2];
+    } else if(parts[1] === 'fluxo' && parts[2]){
+      state.central.view = 'fluxo';
+      state.central.fluxoId = parts[2];
+    } else {
+      state.central.view = 'home';
+      state.central.categoryId = null;
+      state.central.situacaoId = null;
+      state.central.fluxoId = null;
+    }
+  } else if(parts[0] === 'trilha' && parts[1]){
+    state.view = 'track';
+    state.trackId = parts[1];
+    state.lessonIdx = parseInt(parts[2] || '0', 10) || 0;
+    state.estudosTemaId = null;
+    state.showTrackVideo = false;
+    state.trainingFolderId = null;
+  } else if(parts[0] === 'estudos' && parts[1]){
+    state.view = 'track';
+    state.trackId = 'estudos';
+    state.estudosTemaId = parts[1];
+    state.showTrackVideo = false;
+    state.trainingFolderId = null;
+  } else {
+    state.view = 'home';
+  }
 }
 
 async function saveAuth(){
@@ -3473,6 +3931,7 @@ function trackDone(track){return track.lessons.filter(l=>state.completed[l.id]).
 function go(view, extra){
   state.view = view;
   if(extra) Object.assign(state, extra);
+  updateHash();
   window.scrollTo({top:0, behavior:'instant'});
   render();
 }
@@ -3841,24 +4300,15 @@ function renderEstudosLeiturasObrigatorias(track){
 }
 
 function renderBookCard(l){
-  const capaItem = (state.materials.livro_capa[l.id]||[])[0];
-  const capaUrl = capaItem ? capaItem.fileData : null;
   return `
   <div class="book-card">
     <div class="book-card-head">
-      <div class="book-cover-box">
-        ${capaUrl
-          ? `<img class="book-cover-img" src="${capaUrl}" alt="Capa de ${escapeHtml(l.titulo)}" />`
-          : `<div class="book-icon">${iconBookOpen()}</div>`}
+      <div class="book-cover-box" onclick="openImageModal('${l.capa}', '${escapeHtml(l.titulo)}')" title="Clique para abrir em tela cheia">
+        <img class="book-cover-img" src="${l.capa}" alt="Capa de ${escapeHtml(l.titulo)}" />
       </div>
       <div class="book-head-text">
         <div class="book-title">${escapeHtml(l.titulo)}</div>
         <div class="book-author">${escapeHtml(l.autor)}</div>
-        <label class="book-cover-btn">
-          ${capaUrl ? iconCopy() : iconPlus()} ${capaUrl ? 'Trocar capa' : 'Adicionar capa'}
-          <input type="file" accept="image/*" style="display:none;" onchange="uploadBookCover('${l.id}', this)" />
-        </label>
-        <span id="book-cover-status-${l.id}" class="book-cover-status"></span>
       </div>
     </div>
     <p class="book-desc">${escapeHtml(l.descricao)}</p>
@@ -3867,37 +4317,52 @@ function renderBookCard(l){
   </div>`;
 }
 
-async function uploadBookCover(bookId, inputEl){
-  const file = inputEl.files && inputEl.files[0];
-  if(!file) return;
-  const statusEl = document.getElementById(`book-cover-status-${bookId}`);
-  if(statusEl) statusEl.textContent = 'Enviando...';
-  try{
-    let coverUrl;
-    if(SUPABASE_READY){
-      coverUrl = await MaterialsBackend.uploadFile(file);
-    }else{
-      coverUrl = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-    const existing = (state.materials.livro_capa[bookId]||[])[0];
-    if(existing){
-      await MaterialsBackend.remove('livro_capa', bookId, existing.id);
-    }
-    await MaterialsBackend.add('livro_capa', bookId, {
-      id: 'cover' + Date.now() + Math.random().toString(36).slice(2,7),
-      title: 'Capa', link: null, fileData: coverUrl, fileName: file.name, fileType: file.type,
-      addedAt: new Date().toISOString(),
-    });
-    renderInto();
-  }catch(e){
-    console.error(e);
-    if(statusEl) statusEl.textContent = 'Falha ao enviar. Tente novamente.';
-  }
+function openImageModal(src, title){
+  state.activeImageModal = { src, title };
+  renderInto();
+}
+
+function closeImageModal(){
+  state.activeImageModal = null;
+  renderInto();
+}
+
+function renderImageModal(){
+  if(!state.activeImageModal) return '';
+  const { src, title } = state.activeImageModal;
+  return `
+  <div class="img-modal-overlay" onclick="closeImageModal()">
+    <div class="img-modal-box">
+      <img class="img-modal-img" src="${src}" alt="${title}" />
+      <div class="img-modal-caption">${title} (Clique em qualquer lugar para fechar)</div>
+    </div>
+  </div>`;
+}
+
+function generateModuleCover(host, num){
+  const bg1 = '#2B2361';
+  const bg2 = '#5646A8';
+  const accent = '#C41E68';
+  const title = `CURSO ${host.toUpperCase()}`;
+  const label = `MÓDULO ${num}`;
+  const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="${bg1}"/>
+      <stop offset="100%" stop-color="${bg2}"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="180" rx="20" fill="url(#g)"/>
+  <rect x="16" y="16" width="288" height="148" rx="18" fill="rgba(255,255,255,0.08)"/>
+  <rect x="16" y="16" width="108" height="38" rx="12" fill="${accent}"/>
+  <text x="24" y="40" fill="#fff" font-family="Segoe UI, Arial, sans-serif" font-weight="700" font-size="18">EDU</text>
+  <text x="16" y="94" fill="#fff" font-family="Segoe UI, Arial, sans-serif" font-weight="700" font-size="28">${title}</text>
+  <text x="16" y="128" fill="#fff" font-family="Segoe UI, Arial, sans-serif" font-weight="600" font-size="18">${label}</text>
+  <circle cx="268" cy="128" r="24" fill="${accent}"/>
+  <path d="M258 118l20 10-20 10z" fill="#fff"/>
+</svg>`;
+  return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
 }
 
 function renderEstudosPodcastsInternos(track){
@@ -3908,21 +4373,82 @@ function renderEstudosPodcastsInternos(track){
         <div>
           <button class="crumb" onclick="go('track',{trackId:'estudos', estudosTemaId:null})">${iconBack()} Rota de Estudos</button>
           <h1>Podcasts Internos</h1>
-          <div class="sub">Conteúdos em áudio produzidos internamente pela Meu Cliente</div>
+          <div class="sub">Episódios e conteúdos do MC Cast (Meu Cliente Trade Marketing)</div>
         </div>
       </div>
     </div>
     <div class="track-body" style="display:block;">
       <div class="lesson-pane" style="max-width:900px; margin:0 auto;">
-        <p class="estudo-section-hint">Cole aqui o link de cada episódio ou conteúdo interno em áudio. Visível para todo o time.</p>
-        ${renderMaterialsBox('estudo_podcast_interno', 'geral', '')}
+        <div class="material-list">
+          ${PODCASTS_INTERNOS.map(p => `
+            <div class="material-item" style="gap:16px; align-items:center;">
+              <div class="video-card-thumb" onclick="openPlayer('${escapeHtml(p.titulo)}', '${p.embed}', null, '${p.link}')" title="Clique para assistir">
+                <img src="${p.thumb}" alt="Thumbnail - ${escapeHtml(p.titulo)}" />
+                <div class="video-card-play-overlay">${iconPlay()}</div>
+              </div>
+              <div style="flex:1; min-width:0;">
+                <div class="m-title" style="font-size:14.5px; line-height:1.4;">${escapeHtml(p.titulo)}</div>
+                <div class="m-actions" style="margin-top:10px;">
+                  <button class="m-watch" onclick="openPlayer('${escapeHtml(p.titulo)}', '${p.embed}', null, '${p.link}')">${iconPlay()} Assistir aqui</button>
+                  <a class="m-link" href="${p.link}" target="_blank" rel="noopener">Abrir no YouTube ↗</a>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
       </div>
     </div>
   </div>`;
 }
 
 function renderEstudosTema(track, tema){
+  if(tema.id === 'meu-cliente-educacao'){
+    return `
+    <div id="view-track">
+      <div class="track-header">
+        <div class="track-header-inner">
+          <div>
+            <button class="crumb" onclick="go('track',{trackId:'estudos', estudosTemaId:null})">${iconBack()} Rota de Estudos</button>
+            <h1>${tema.titulo}</h1>
+            <div class="sub">${tema.desc}</div>
+          </div>
+        </div>
+      </div>
+      <div class="track-body" style="display:block;">
+        <div class="lesson-pane" style="max-width:900px; margin:0 auto;">
+          ${MEU_CLIENTE_EDUCACAO.map(grupo => `
+            <div style="margin-bottom:36px;">
+              <h2 style="color:var(--navy); margin:0 0 12px; font-size:18px; border-bottom:2px solid var(--magenta-soft); padding-bottom:6px;">Curso ${escapeHtml(grupo.host)}</h2>
+              <div class="material-list">
+                ${grupo.modulos.map(m => {
+                  const title = `CURSO ${grupo.host.toUpperCase()} - MÓDULO 0${m.num}`;
+                  const cover = generateModuleCover(grupo.host, m.num);
+                  return `
+                    <div class="material-item" style="gap:16px; align-items:center;">
+                      <div class="video-card-thumb" onclick="openPlayer('${escapeHtml(title)}', '${m.embed}', null, '${m.link}')" title="Clique para assistir">
+                        <img src="${cover}" alt="Capa - ${escapeHtml(title)}" />
+                        <div class="video-card-play-overlay">${iconPlay()}</div>
+                      </div>
+                      <div style="flex:1; min-width:0;">
+                        <div class="m-title" style="font-size:15px; font-weight:700;">${escapeHtml(title)}</div>
+                        <div class="m-actions" style="margin-top:10px;">
+                          <button class="m-watch" onclick="openPlayer('${escapeHtml(title)}', '${m.embed}', null, '${m.link}')">${iconPlay()} Assistir aqui</button>
+                          <a class="m-link" href="${m.link}" target="_blank" rel="noopener">Abrir link original ↗</a>
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>`;
+  }
+  const videos = ESTUDOS_VIDEOS[tema.id] || [];
   const livros = ESTUDOS_LIVROS[tema.id] || [];
+
   return `
   <div id="view-track">
     <div class="track-header">
@@ -3938,7 +4464,26 @@ function renderEstudosTema(track, tema){
       <div class="lesson-pane" style="max-width:900px; margin:0 auto;">
         <h2 style="color:var(--navy); margin:0 0 4px;">${iconPlay()} Vídeos</h2>
         <p class="estudo-section-hint">Palestras, aulas e conteúdos em vídeo sobre ${tema.titulo.toLowerCase()}.</p>
-        ${renderMaterialsBox('estudo_video', tema.id, '')}
+
+        <div class="material-list">
+          ${videos.length === 0 ? `
+            <div class="material-empty">Nenhum vídeo cadastrado no momento.</div>
+          ` : videos.map(v => `
+            <div class="material-item" style="gap:16px; align-items:center;">
+              <div class="video-card-thumb" onclick="openPlayer('${escapeHtml(v.titulo)}', '${v.embed}', null, '${v.link}')" title="Clique para assistir">
+                <img src="${v.thumb}" alt="Thumbnail - ${escapeHtml(v.titulo)}" />
+                <div class="video-card-play-overlay">${iconPlay()}</div>
+              </div>
+              <div style="flex:1; min-width:0;">
+                <div class="m-title" style="font-size:14.5px; line-height:1.4;">${escapeHtml(v.titulo)}</div>
+                <div class="m-actions" style="margin-top:10px;">
+                  <button class="m-watch" onclick="openPlayer('${escapeHtml(v.titulo)}', '${v.embed}', null, '${v.link}')">${iconPlay()} Assistir aqui</button>
+                  <a class="m-link" href="${v.link}" target="_blank" rel="noopener">Abrir no YouTube ↗</a>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
 
         <div style="height:1px; background:var(--line); margin:40px 0;"></div>
 
@@ -4030,21 +4575,24 @@ function getEmbedUrl(link){
   try{
     const url = new URL(link.trim());
     const host = url.hostname.replace(/^www\./,'');
-    // YouTube
+    // YouTube (usando youtube-nocookie.com para evitar o Erro 153 em file://)
     if(host === 'youtu.be'){
       const id = url.pathname.slice(1);
-      if(id) return `https://www.youtube.com/embed/${id}`;
+      if(id) return `https://www.youtube-nocookie.com/embed/${id}?rel=0`;
     }
     if(host === 'youtube.com' || host === 'm.youtube.com'){
       if(url.pathname === '/watch'){
         const id = url.searchParams.get('v');
-        if(id) return `https://www.youtube.com/embed/${id}`;
+        if(id) return `https://www.youtube-nocookie.com/embed/${id}?rel=0`;
       }
       if(url.pathname.startsWith('/shorts/')){
         const id = url.pathname.split('/')[2];
-        if(id) return `https://www.youtube.com/embed/${id}`;
+        if(id) return `https://www.youtube-nocookie.com/embed/${id}?rel=0`;
       }
-      if(url.pathname.startsWith('/embed/')) return link;
+      if(url.pathname.startsWith('/embed/')){
+        const id = url.pathname.split('/')[2];
+        return `https://www.youtube-nocookie.com/embed/${id}?rel=0`;
+      }
     }
     // Google Drive
     if(host === 'drive.google.com' || host === 'docs.google.com'){
@@ -4125,7 +4673,7 @@ function renderPlayerModal(){
       </div>
       <div class="player-frame">
         ${embedUrl
-          ? `<iframe src="${escapeHtml(embedUrl)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen frameborder="0" referrerpolicy="no-referrer-when-downgrade"></iframe>`
+          ? `<iframe src="${escapeHtml(embedUrl)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen frameborder="0" referrerpolicy="strict-origin-when-cross-origin"></iframe>`
           : `<video src="${videoSrc}" controls autoplay style="width:100%;height:100%;background:#000;"></video>`}
       </div>
       ${originalLink ? `
@@ -4327,6 +4875,8 @@ async function saveCentralState(){
 function centralGo(view, extra){
   state.central.view = view;
   if(extra) Object.assign(state.central, extra);
+  state.view = 'central';
+  updateHash();
   window.scrollTo({top:0, behavior:'instant'});
   renderInto();
 }
@@ -4643,16 +5193,20 @@ function renderInto(){
     if(state.view === 'central') body = renderCentral();
     else if(state.view === 'track') body = renderTrack();
     else body = renderHome();
-    app.innerHTML = renderTopbar() + body + renderPlayerModal() + renderToast();
+    app.innerHTML = renderTopbar() + body + renderPlayerModal() + renderImageModal() + renderToast();
   }
   app.dataset.rendered = 'true';
 }
 function render(){ renderInto(); }
 
 function openCentral(){
-  state.view = 'central';
-  renderInto();
+  centralGo('home');
 }
+
+window.addEventListener('hashchange', () => {
+  parseHash();
+  renderInto();
+});
 
 loadState().catch(function(err){
   console.error('Falha ao iniciar a plataforma:', err);
