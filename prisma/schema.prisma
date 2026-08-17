@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model mensagens {
+  id         Int      @id @default(autoincrement())
+  ticket_id  String
+  autor_id   Int      @default(0)
+  tipo_autor String
+  texto      String
+  criado_em  DateTime @default(now())
+  tickets    tickets  @relation(fields: [ticket_id], references: [id], onDelete: Cascade)
+}
+
+model tickets {
+  id                  String      @id
+  titulo              String
+  plataforma          String
+  tipo                String
+  status              String      @default("novo")
+  aberto_em           DateTime    @default(now())
+  atualizado_em       DateTime
+  n2_comentario       String?
+  atribuido_a         String?
+  usuario_id          Int
+  escalado_em         DateTime?
+  n3_analysis_acc     Int         @default(0)
+  n3_analysis_started DateTime?
+  n3_correction_acc   Int         @default(0)
+  n3_last_started     DateTime?
+  n3_phase            String?
+  processado_planilha Boolean?    @default(false)
+  mensagens           mensagens[]
+}
+
+model tmd_usuario {
+  usuario_id Int     @id @default(autoincrement())
+  nome       String
+  email      String? @unique
+  senha      String?
+  pin        String?
+  ativo      Boolean @default(true)
+  cliente_id Int?
+}
