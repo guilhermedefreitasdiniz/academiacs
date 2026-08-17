@@ -3897,21 +3897,28 @@ const MaterialsBackend = {
       }
       return out;
     }
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/materials?select=*&order=added_at.desc`, { headers: supaHeaders() });
-    if(!res.ok) throw new Error('Falha ao carregar materiais do Supabase');
-    const rows = await res.json();
-    const out = {};
-    for(const ns of NAMESPACES) out[ns] = {};
-    for(const row of rows){
-      const ns = NAMESPACES.includes(row.ns) ? row.ns : 'training';
-      if(!out[ns][row.folder_id]) out[ns][row.folder_id] = [];
-      out[ns][row.folder_id].push({
-        id: row.id, title: row.title, link: row.link,
-        fileData: row.file_url || null, fileName: row.file_name || null, fileType: row.file_type || null,
-        addedAt: row.added_at,
-      });
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/materials?select=*&order=added_at.desc`, { headers: supaHeaders() });
+      if(!res.ok) throw new Error('Falha ao carregar materiais do Supabase');
+      const rows = await res.json();
+      const out = {};
+      for(const ns of NAMESPACES) out[ns] = {};
+      for(const row of rows){
+        const ns = NAMESPACES.includes(row.ns) ? row.ns : 'training';
+        if(!out[ns][row.folder_id]) out[ns][row.folder_id] = [];
+        out[ns][row.folder_id].push({
+          id: row.id, title: row.title, link: row.link,
+          fileData: row.file_url || null, fileName: row.file_name || null, fileType: row.file_type || null,
+          addedAt: row.added_at,
+        });
+      }
+      return out;
+    } catch(err) {
+      console.warn("Aviso ao carregar materiais do Supabase (utilizando fallback):", err);
+      const out = {};
+      for(const ns of NAMESPACES) out[ns] = {};
+      return out;
     }
-    return out;
   },
 
   async add(ns, folderId, item){
@@ -5620,19 +5627,25 @@ async function salvarProgressoSupabase(licaoId) {
   }
 }
 async function initApp() {
+  // Tenta carregar materiais sem interromper o login em caso de falha
   try {
-    // Carrega dados compartilhados primeiro
     state.materials = await MaterialsBackend.loadAll();
-    // Depois verifica login e progresso
+  } catch (err) {
+    console.error('Aviso ao carregar materiais:', err);
+  }
+
+  // Garante que o login salvo no localStorage sempre seja lido
+  try {
     await loadState();
   } catch (err) {
-    console.error('Falha na inicialização:', err);
-    renderInto(); // Tenta renderizar mesmo com erro
+    console.error('Falha ao carregar estado do usuário:', err);
+    renderInto();
   }
 }
 
 // Inicia o sistema
 initApp();
+
 </script>
 </body>
 </html>
