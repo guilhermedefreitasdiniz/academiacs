@@ -3805,7 +3805,7 @@ function iconPlayOutline(){return '<svg width="20" height="20" viewBox="0 0 24 2
 // Veja o guia de configuração enviado junto com este arquivo.
 const SUPABASE_URL = "https://pmflejqdxfkbnfmmlzhd.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_IMd55fyxFnwLu_WHnNwI9Q_C_F8DfcN";
-const SUPABASE_READY = false;
+const SUPABASE_READY = true;
 
 async function carregarProgressoSupabase() {
   const savedUser = localStorage.getItem('resolve_user');
@@ -4094,7 +4094,6 @@ function go(view, extra){
   window.scrollTo({top:0, behavior:'instant'});
   render();
 }
-
 async function handleLogin(e) {
   if (e && e.preventDefault) e.preventDefault();
 
@@ -4122,16 +4121,15 @@ async function handleLogin(e) {
 
     if (response.ok && data && data.success) {
       localStorage.setItem('resolve_user', JSON.stringify(data.user));
-      
-      // Força a atualização do estado da tela principal
+
       if (typeof state !== 'undefined') {
         state.user = data.user;
         state.authed = true;
         state.view = 'home';
-        if (typeof renderInto === 'function') {
-          renderInto();
-          return;
-        }
+        
+        // 🎯 AQUI ESTAVA O PROBLEMA: Agora ele busca no Supabase o progresso antes de desenhar a tela!
+        await loadState(); 
+        return;
       }
       window.location.reload();
     } else {
@@ -4142,43 +4140,6 @@ async function handleLogin(e) {
   } catch (err) {
     console.error("Erro na requisição:", err);
     if (errorEl) errorEl.textContent = 'Servidor indisponível no momento.';
-  }
-}
-
-async function toggleDone(id) {
-  if (!state.user) return;
-  
-  const novoEstado = !state.completed[id];
-  const usuarioId = state.user.id;
-
-  // Atualiza UI na hora
-  state.completed[id] = novoEstado;
-  renderInto();
-
-  try {
-    if (novoEstado) {
-      await fetch(`${SUPABASE_URL}/rest/v1/progresso_academia`, {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-          'Content-Type': 'application/json',
-          'Prefer': 'resolution=merge-duplicates'
-        },
-        body: JSON.stringify({ usuario_id: usuarioId, licao_id: id })
-      });
-    } else {
-      await fetch(`${SUPABASE_URL}/rest/v1/progresso_academia?usuario_id=eq.${usuarioId}&licao_id=eq.${id}`, {
-        method: 'DELETE',
-        headers: {
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
-        }
-      });
-    }
-  } catch (e) {
-    console.error("Erro ao salvar no banco:", e);
-    showToast("Erro ao sincronizar online.");
   }
 }
 
@@ -5541,19 +5502,6 @@ window.addEventListener('hashchange', () => {
 });
 
 
-// Inicialização segura para evitar tela branca
-async function initApp() {
-  try {
-    // Carrega dados compartilhados primeiro
-    state.materials = await MaterialsBackend.loadAll();
-    // Depois verifica login e progresso
-    await loadState();
-  } catch (err) {
-    console.error('Falha na inicialização:', err);
-    renderInto(); // Tenta renderizar mesmo com erro
-  }
-}
-
 // 1. Digitação & Avanço Automático
 document.addEventListener('input', (e) => {
   if (!e.target.classList.contains('pin-box')) return;
@@ -5654,7 +5602,6 @@ async function salvarProgressoSupabase(licaoId) {
     console.log(`✅ Lição ${licaoId} registrada!`);
   }
 }
-// Inicialização segura para evitar tela branca
 async function initApp() {
   try {
     // Carrega dados compartilhados primeiro
