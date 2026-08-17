@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Academia de CS · Meu Cliente</title>
@@ -200,17 +201,18 @@
 .pin-input-group {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  margin: 18px 0;
+  gap: 8px;
+  margin: 16px 0;
 }
 
+/* Quadrado fino e compacto */
 .pin-box {
-  width: 40px;           /* Reduzido de 50px para 40px */
-  height: 48px;          /* Reduzido de 56px para 48px */
+  width: 16px;            /* Largura reduzida para 36px */
+  height: 86px;           /* Altura ajustada */
   border: 1.5px solid #CBD5E1;
   background: #F8FAFC;
   border-radius: 8px;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 800;
   color: #1C1542;
   text-align: center;
@@ -3804,6 +3806,72 @@ function iconPlayOutline(){return '<svg width="20" height="20" viewBox="0 0 24 2
 const SUPABASE_URL = "https://pmflejqdxfkbnfmmlzhd.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_IMd55fyxFnwLu_WHnNwI9Q_C_F8DfcN";
 const SUPABASE_READY = false;
+
+async function carregarProgressoSupabase() {
+  const savedUser = localStorage.getItem('resolve_user');
+  if (!savedUser) return;
+  const user = JSON.parse(savedUser);
+
+  try {
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Buscando as lições concluídas do usuário logado no Supabase
+    const { data: licoes, error } = await supabase
+      .from('progresso_academia')
+      .select('licao_id')
+      .eq('usuario_id', String(user.id));
+
+    if (error) throw error;
+
+    if (licoes && licoes.length > 0) {
+      // Preenche o objeto de estado de lições concluídas da aplicação
+      state.completed = {};
+      licoes.forEach(item => {
+        state.completed[item.licao_id] = true;
+      });
+
+      // Atualiza a Topbar na tela com o valor real (ex: 3/98)
+      if (typeof renderInto === 'function') {
+        renderInto();
+      }
+    }
+  } catch (err) {
+    console.error("Erro ao carregar progresso do Supabase:", err);
+  }
+}
+
+// Executa a busca assim que o usuário entra na página
+document.addEventListener('DOMContentLoaded', () => {
+  if (state.authed) {
+    carregarProgressoSupabase();
+  }
+});
+
+async function alternarConclusaoAula(licaoId) {
+  const savedUser = localStorage.getItem('resolve_user');
+  if (!savedUser) return;
+  const user = JSON.parse(savedUser);
+
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Se já estava concluída, remove; se não, insere
+  if (state.completed[licaoId]) {
+    delete state.completed[licaoId];
+    await supabase
+      .from('progresso_academia')
+      .delete()
+      .eq('usuario_id', String(user.id))
+      .eq('licao_id', String(licaoId));
+  } else {
+    state.completed[licaoId] = true;
+    await supabase
+      .from('progresso_academia')
+      .insert([{ usuario_id: String(user.id), licao_id: String(licaoId) }]);
+  }
+
+  // Atualiza a Topbar instantaneamente
+  renderInto();
+}
 // ============================================================
 
 function supaHeaders(extra){
@@ -4054,10 +4122,21 @@ async function handleLogin(e) {
 
     if (response.ok && data && data.success) {
       localStorage.setItem('resolve_user', JSON.stringify(data.user));
+      
+      // Força a atualização do estado da tela principal
+      if (typeof state !== 'undefined') {
+        state.user = data.user;
+        state.authed = true;
+        state.view = 'home';
+        if (typeof renderInto === 'function') {
+          renderInto();
+          return;
+        }
+      }
       window.location.reload();
     } else {
       if (errorEl) {
-        errorEl.textContent = (data && data.error) ? data.error : 'Erro de conexão no banco Vercel/AWS.';
+        errorEl.textContent = (data && data.error) ? data.error : 'Credenciais inválidas.';
       }
     }
   } catch (err) {
