@@ -3965,9 +3965,7 @@ const MaterialsBackend = {
 };
 
 async function loadState() {
-  // 1. Tenta recuperar o usuário que logou via PIN (Sincronizado com o Resolve)
   const userRaw = localStorage.getItem('resolve_user');
-  
   if (!userRaw) {
     state.view = 'login';
     state.authed = false;
@@ -3975,10 +3973,15 @@ async function loadState() {
     return;
   }
 
+  // Marca como autenticado e força a visão para a Home
   state.authed = true;
   state.user = JSON.parse(userRaw);
+  if (state.view === 'login') {
+    state.view = 'home';
+  }
+  parseHash();
 
-  // 2. Busca o progresso deste usuário no Supabase
+  // Busca o progresso atualizado no Supabase
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/progresso_academia?usuario_id=eq.${state.user.id}`, {
       headers: {
@@ -3986,18 +3989,19 @@ async function loadState() {
         'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
       }
     });
-    
     const concluidosNoBanco = await res.json();
-    
-    // Reseta o estado local e preenche com o que veio do banco
+
     state.completed = {};
-    concluidosNoBanco.forEach(item => {
-      state.completed[item.licao_id] = true;
-    });
+    if (Array.isArray(concluidosNoBanco)) {
+      concluidosNoBanco.forEach(item => {
+        state.completed[item.licao_id] = true;
+      });
+    }
   } catch (e) {
     console.error("Erro ao carregar progresso do banco online:", e);
   }
 
+  // Redesenha a tela já com o contador real de lições
   renderInto();
 }
 
@@ -4122,16 +4126,12 @@ async function handleLogin(e) {
     if (response.ok && data && data.success) {
       localStorage.setItem('resolve_user', JSON.stringify(data.user));
 
-      if (typeof state !== 'undefined') {
-        state.user = data.user;
-        state.authed = true;
-        state.view = 'home';
-        
-        // 🎯 AQUI ESTAVA O PROBLEMA: Agora ele busca no Supabase o progresso antes de desenhar a tela!
-        await loadState(); 
-        return;
-      }
-      window.location.reload();
+      state.user = data.user;
+      state.authed = true;
+      state.view = 'home';
+
+      // Aguarda o banco responder antes de exibir a Home
+      await loadState();
     } else {
       if (errorEl) {
         errorEl.textContent = (data && data.error) ? data.error : 'Credenciais inválidas.';
