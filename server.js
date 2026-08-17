@@ -99,6 +99,11 @@ app.post('/api/login', async (req, res) => {
 });
 
 const PORT = 3000;
-app.listen(PORT, () => {
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
     console.log(`🚀 Academia Backend rodando em http://localhost:${PORT}`);
-});
+  });
+}
+
+module.exports = app;
