@@ -2,6 +2,7 @@
   "name": "academia-cs-backend",
   "version": "1.0.0",
   "scripts": {
+    "build": "prisma generate",
     "dev": "node server.js",
     "start": "node server.js"
   },

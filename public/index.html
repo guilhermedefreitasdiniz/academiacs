@@ -205,17 +205,17 @@
 }
 
 .pin-box {
-  width: 50px;
-  height: 56px;
-  border: 2px solid #CBD5E1;
+  width: 40px;           /* Reduzido de 50px para 40px */
+  height: 48px;          /* Reduzido de 56px para 48px */
+  border: 1.5px solid #CBD5E1;
   background: #F8FAFC;
-  border-radius: 10px;
-  font-size: 22px;
+  border-radius: 8px;
+  font-size: 20px;
   font-weight: 800;
-  color: #1C1542; /* Cor escura para contrastar com o card claro */
+  color: #1C1542;
   text-align: center;
   outline: none;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.15s ease-in-out;
 }
 
 .pin-box:focus {
@@ -4030,7 +4030,6 @@ function go(view, extra){
 async function handleLogin(e) {
   if (e && e.preventDefault) e.preventDefault();
 
-  // Junta o valor das 4 caixinhas do PIN (se existirem)
   const pinBoxes = document.querySelectorAll('.pin-box');
   let pin = '';
   if (pinBoxes.length > 0) {
@@ -4042,26 +4041,28 @@ async function handleLogin(e) {
 
   const email = emailInput ? emailInput.value : '';
   const password = pwInput ? pwInput.value : '';
+  const errorEl = document.getElementById('login-error') || document.querySelector('.error-msg');
 
   try {
-    // 🎯 CAMINHO RELATIVO: Roda em Local e na Vercel automaticamente
     const response = await fetch('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ pin, email, password })
     });
 
-    const data = await response.json();
+    const data = await response.json().catch(() => null);
 
-    if (data.success) {
+    if (response.ok && data && data.success) {
       localStorage.setItem('resolve_user', JSON.stringify(data.user));
       window.location.reload();
     } else {
-      const errorEl = document.getElementById('login-error') || document.querySelector('.error-msg');
-      if (errorEl) errorEl.textContent = data.error || 'Credenciais inválidas.';
+      if (errorEl) {
+        errorEl.textContent = (data && data.error) ? data.error : 'Erro de conexão no banco Vercel/AWS.';
+      }
     }
   } catch (err) {
-    console.error("Erro no login:", err);
+    console.error("Erro na requisição:", err);
+    if (errorEl) errorEl.textContent = 'Servidor indisponível no momento.';
   }
 }
 
