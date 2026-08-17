@@ -3963,7 +3963,6 @@ const MaterialsBackend = {
     return `${SUPABASE_URL}/storage/v1/object/public/materiais/${path}`;
   },
 };
-
 async function loadState() {
   const userRaw = localStorage.getItem('resolve_user');
   if (!userRaw) {
@@ -3973,35 +3972,53 @@ async function loadState() {
     return;
   }
 
-  // Marca como autenticado e força a visão para a Home
-  state.authed = true;
-  state.user = JSON.parse(userRaw);
-  if (state.view === 'login') {
-    state.view = 'home';
-  }
-  parseHash();
-
-  // Busca o progresso atualizado no Supabase
+  // 1. Entra na Home imediatamente se o usuário estiver logado
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/progresso_academia?usuario_id=eq.${state.user.id}`, {
-      headers: {
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
-      }
-    });
-    const concluidosNoBanco = await res.json();
-
-    state.completed = {};
-    if (Array.isArray(concluidosNoBanco)) {
-      concluidosNoBanco.forEach(item => {
-        state.completed[item.licao_id] = true;
-      });
+    state.user = JSON.parse(userRaw);
+    state.authed = true;
+    if (!state.view || state.view === 'login') {
+      state.view = 'home';
     }
+    parseHash();
   } catch (e) {
-    console.error("Erro ao carregar progresso do banco online:", e);
+    console.error("Erro ao ler usuario do localStorage:", e);
+    localStorage.removeItem('resolve_user');
+    state.view = 'login';
+    state.authed = false;
+    renderInto();
+    return;
   }
 
-  // Redesenha a tela já com o contador real de lições
+  // Renderiza a Home na hora
+  renderInto();
+
+  // 2. Busca o progresso real no Supabase com trava contra erros
+  if (state.user && state.user.id) {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/progresso_academia?usuario_id=eq.${state.user.id}`, {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+        }
+      });
+
+      if (res.ok) {
+        const concluidosNoBanco = await res.json();
+        if (Array.isArray(concluidosNoBanco)) {
+          state.completed = {};
+          concluidosNoBanco.forEach(item => {
+            if (item && item.licao_id) {
+              state.completed[item.licao_id] = true;
+            }
+          });
+        }
+      }
+    } catch (e) {
+      console.error("Erro ao carregar progresso do Supabase:", e);
+    }
+  }
+
+  // 3. Atualiza a Topbar com o valor real (ex: 3/98)
   renderInto();
 }
 
@@ -4097,8 +4114,7 @@ function go(view, extra){
   updateHash();
   window.scrollTo({top:0, behavior:'instant'});
   render();
-}
-async function handleLogin(e) {
+}async function handleLogin(e) {
   if (e && e.preventDefault) e.preventDefault();
 
   const pinBoxes = document.querySelectorAll('.pin-box');
@@ -4112,7 +4128,9 @@ async function handleLogin(e) {
 
   const email = emailInput ? emailInput.value : '';
   const password = pwInput ? pwInput.value : '';
-  const errorEl = document.getElementById('login-error') || document.querySelector('.error-msg');
+  const errorEl = document.getElementById('login-error') || document.querySelector('.error-msg') || document.getElementById('pw-error');
+
+  if (errorEl) errorEl.textContent = '';
 
   try {
     const response = await fetch('/api/login', {
@@ -4130,7 +4148,6 @@ async function handleLogin(e) {
       state.authed = true;
       state.view = 'home';
 
-      // Aguarda o banco responder antes de exibir a Home
       await loadState();
     } else {
       if (errorEl) {
