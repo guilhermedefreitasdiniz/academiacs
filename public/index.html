@@ -198,6 +198,38 @@
   .bar{height:6px; border-radius:999px; background:var(--lavender); overflow:hidden; margin-top:2px;}
   .bar > i{display:block; height:100%; background:linear-gradient(90deg, var(--magenta), var(--navy)); border-radius:999px;}
 
+
+  /* Container das caixinhas de PIN */
+.pin-input-group {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+/* Estilo individual de cada quadrado */
+.pin-box {
+  width: 52px;
+  height: 58px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  font-size: 24px;
+  font-weight: 800;
+  color: #FFFFFF;
+  text-align: center;
+  text-transform: uppercase;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Efeito quando o usuário clica ou foca na caixa */
+.pin-box:focus {
+  border-color: #F2C230;
+  background: rgba(242, 194, 48, 0.15);
+  box-shadow: 0 0 12px rgba(242, 194, 48, 0.35);
+  transform: scale(1.05);
+}
   /* ---------- TRACK / LESSON VIEW ---------- */
   #view-track{flex:1; display:flex; flex-direction:column;}
   .track-header{
@@ -4004,51 +4036,39 @@ function go(view, extra){
 
 async function handleLogin(e) {
   if (e && e.preventDefault) e.preventDefault();
-  const errorEl = document.getElementById('pw-error');
-  
-  const credenciais = {};
-  if (state.loginMode === 'email') {
-     const email = document.getElementById('email-input').value;
-     const password = document.getElementById('pw-input').value;
-     if (!email || !password) {
-         errorEl.textContent = "Preencha e-mail e senha.";
-         return;
-     }
-     credenciais.email = email;
-     credenciais.password = password;
-  } else {
-     const pin = document.getElementById('pw-input').value;
-     if (!pin) {
-         errorEl.textContent = "Por favor, insira o PIN.";
-         return;
-     }
-     credenciais.pin = pin;
+
+  // Junta o valor das 4 caixinhas do PIN (se existirem)
+  const pinBoxes = document.querySelectorAll('.pin-box');
+  let pin = '';
+  if (pinBoxes.length > 0) {
+    pin = Array.from(pinBoxes).map(b => b.value).join('').toUpperCase();
   }
 
-  errorEl.textContent = 'Validando...';
+  const emailInput = document.getElementById('email-input');
+  const pwInput = document.getElementById('pw-input');
+
+  const email = emailInput ? emailInput.value : '';
+  const password = pwInput ? pwInput.value : '';
 
   try {
-    // Aponta para o Node.js que configuramos na porta 3000
-    const res = await fetch('http://localhost:3000/api/login', {
+    // 🎯 CAMINHO RELATIVO: Roda em Local e na Vercel automaticamente
+    const response = await fetch('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(credenciais)
+      body: JSON.stringify({ pin, email, password })
     });
-    
-    const data = await res.json();
+
+    const data = await response.json();
 
     if (data.success) {
-      state.authed = true;
-      state.user = data.user; 
       localStorage.setItem('resolve_user', JSON.stringify(data.user));
-      await loadState(); // Carrega progresso do Supabase
-      go('home');
+      window.location.reload();
     } else {
-      errorEl.textContent = data.error || 'Credenciais inválidas.';
+      const errorEl = document.getElementById('login-error') || document.querySelector('.error-msg');
+      if (errorEl) errorEl.textContent = data.error || 'Credenciais inválidas.';
     }
   } catch (err) {
     console.error("Erro no login:", err);
-    errorEl.textContent = 'Erro de conexão com o servidor local.';
   }
 }
 
@@ -4107,10 +4127,16 @@ function renderLoginView(){
   const isPin = state.loginMode === 'pin';
 
   // Monta os campos baseado na escolha do usuário
-  const inputsHtml = isPin
-    ? `<input type="password" id="pw-input" placeholder="Digite seu PIN..." autocomplete="current-password" onkeydown="if(event.key==='Enter'){handleLogin(event);}" style="text-align: center; letter-spacing: 4px; font-weight: bold;" />`
-    : `<input type="email" id="email-input" placeholder="E-mail corporativo..." style="margin-bottom: 10px;" />
-       <input type="password" id="pw-input" placeholder="Senha..." autocomplete="current-password" onkeydown="if(event.key==='Enter'){handleLogin(event);}" />`;
+const inputsHtml = isPin
+  ? `<div class="pin-input-group">
+       <input type="password" class="pin-box" maxlength="1" autocomplete="off" inputmode="text" />
+       <input type="password" class="pin-box" maxlength="1" autocomplete="off" inputmode="text" />
+       <input type="password" class="pin-box" maxlength="1" autocomplete="off" inputmode="text" />
+       <input type="password" class="pin-box" maxlength="1" autocomplete="off" inputmode="text" />
+     </div>`
+  : `<input type="email" id="email-input" placeholder="E-mail corporativo..." style="margin-bottom: 10px;" />
+     <input type="password" id="pw-input" placeholder="Senha..." autocomplete="current-password" onkeydown="if(event.key==='Enter'){handleLogin(event);}" />`;
+
 
   const toggleText = isPin ? 'Entrar com E-mail e Senha' : 'Entrar apenas com PIN';
 
@@ -5454,6 +5480,82 @@ async function initApp() {
     renderInto(); // Tenta renderizar mesmo com erro
   }
 }
+
+// 1. Digitação & Avanço Automático
+document.addEventListener('input', (e) => {
+  if (!e.target.classList.contains('pin-box')) return;
+  const boxes = Array.from(document.querySelectorAll('.pin-box'));
+  const idx = boxes.indexOf(e.target);
+  const val = e.target.value.toUpperCase();
+  
+  e.target.value = val;
+
+  if (val && idx < boxes.length - 1) {
+    boxes[idx + 1].focus();
+    boxes[idx + 1].select();
+  }
+});
+
+// 2. Teclas Especiais (Backspace, Delete, Setas, Enter)
+document.addEventListener('keydown', (e) => {
+  if (!e.target.classList.contains('pin-box')) return;
+  const boxes = Array.from(document.querySelectorAll('.pin-box'));
+  const idx = boxes.indexOf(e.target);
+
+  if (e.key === 'Enter') {
+    handleLogin(e);
+    return;
+  }
+
+  if (e.key === 'Backspace') {
+    if (!e.target.value && idx > 0) {
+      boxes[idx - 1].focus();
+      boxes[idx - 1].value = '';
+    } else {
+      e.target.value = '';
+    }
+    e.preventDefault();
+  } else if (e.key === 'Delete') {
+    e.target.value = '';
+    e.preventDefault();
+  } else if (e.key === 'ArrowLeft' && idx > 0) {
+    boxes[idx - 1].focus();
+    boxes[idx - 1].select();
+    e.preventDefault();
+  } else if (e.key === 'ArrowRight' && idx < boxes.length - 1) {
+    boxes[idx + 1].focus();
+    boxes[idx + 1].select();
+    e.preventDefault();
+  }
+});
+
+// 3. Suporte a Colar (Paste)
+document.addEventListener('paste', (e) => {
+  if (!e.target.classList.contains('pin-box')) return;
+  e.preventDefault();
+  
+  const pasted = (e.clipboardData || window.clipboardData)
+    .getData('text').trim().toUpperCase();
+  const boxes = document.querySelectorAll('.pin-box');
+
+  if (pasted) {
+    for (let i = 0; i < boxes.length; i++) {
+      if (pasted[i]) boxes[i].value = pasted[i];
+    }
+    const lastIdx = Math.min(pasted.length - 1, boxes.length - 1);
+    if (boxes[lastIdx]) {
+      boxes[lastIdx].focus();
+      boxes[lastIdx].select();
+    }
+  }
+});
+
+// 4. Seleciona o conteúdo ao focar na caixa
+document.addEventListener('focusin', (e) => {
+  if (e.target.classList.contains('pin-box')) {
+    e.target.select();
+  }
+});
 async function salvarProgressoSupabase(licaoId) {
   const savedUser = localStorage.getItem('resolve_user');
   if (!savedUser) return;
